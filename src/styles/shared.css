@@ -1,0 +1,127 @@
+.section {
+  padding: 110px 0;
+}
+
+.section__title {
+  font-size: clamp(30px, 4.4vw, 52px);
+  max-width: 780px;
+  margin-top: 14px;
+}
+
+.btn-lg {
+  padding: 20px 44px;
+  font-size: 17px;
+}
+
+.product-card {
+  display: block;
+  group: card;
+}
+
+.product-card__visual {
+  position: relative;
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 28px 30px 14px;
+  overflow: hidden;
+  transition: transform 0.5s var(--ease), background 0.5s var(--ease);
+}
+
+.product-card:hover .product-card__visual {
+  transform: translateY(-6px);
+  background: var(--grey-light);
+}
+
+.product-card__visual .tshirt {
+  transition: transform 0.6s var(--ease);
+}
+
+.product-card:hover .product-card__visual .tshirt {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+.product-card__tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--black);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.product-card__info {
+  padding: 18px 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-card__info h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.product-card__info p {
+  color: var(--grey);
+  font-size: 13.5px;
+}
+
+.product-card__price {
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.print-zone {
+  position: absolute;
+  overflow: hidden;
+  cursor: default;
+}
+
+.print-zone__image {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  max-width: none;
+  width: 130%;
+  pointer-events: none;
+  user-select: none;
+}
+
+.statement {
+  background: var(--paper);
+  border-radius: 32px;
+  margin: 0 clamp(12px, 3vw, 40px);
+  width: auto;
+}
+
+.statement__inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.statement__title {
+  font-size: clamp(30px, 5.4vw, 60px);
+}
+
+.print-zone__text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-weight: 800;
+  text-align: center;
+  white-space: pre-wrap;
+  font-size: 15px;
+  width: 160%;
+  pointer-events: none;
+  user-select: none;
+}

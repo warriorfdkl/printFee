@@ -1,0 +1,163 @@
+.account {
+  padding-bottom: 100px;
+}
+
+.account__title {
+  font-size: clamp(30px, 4.6vw, 48px);
+  margin-top: 14px;
+}
+
+.account__lead {
+  margin-top: 18px;
+  color: var(--grey);
+  max-width: 460px;
+  line-height: 1.6;
+}
+
+.account__auth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.account__form-wrap {
+  background: var(--paper);
+  border-radius: 24px;
+  padding: 40px;
+}
+
+.account__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.account__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--grey);
+}
+
+.account__form input {
+  border: 1.5px solid var(--grey-light);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 15px;
+  background: var(--white);
+  color: var(--black);
+  font-weight: 400;
+  transition: border-color 0.3s var(--ease);
+}
+
+.account__form input:focus {
+  border-color: var(--black);
+}
+
+.account__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.account__profile {
+  margin-top: 40px;
+  border: 1.5px solid var(--grey-light);
+  border-radius: 20px;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+}
+
+.account__profile-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14.5px;
+}
+
+.account__profile-row span {
+  color: var(--grey);
+}
+
+.account__orders-title {
+  margin-top: 56px;
+  font-size: 24px;
+}
+
+.account__empty {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  color: var(--grey);
+}
+
+.account__orders {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account__order {
+  border: 1px solid var(--grey-light);
+  border-radius: 18px;
+  padding: 22px 26px;
+}
+
+.account__order-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.account__order-head span:last-child {
+  color: var(--grey);
+  font-weight: 500;
+}
+
+.account__order-items {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  color: var(--grey);
+  font-size: 13.5px;
+}
+
+.account__order-total {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--grey-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.account__order-total span {
+  font-size: 12px;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.account__order-total strong {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+@media (max-width: 900px) {
+  .account__auth {
+    grid-template-columns: 1fr;
+  }
+}

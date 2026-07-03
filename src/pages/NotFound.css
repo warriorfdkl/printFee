@@ -1,0 +1,23 @@
+.not-found__inner {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.not-found__title {
+  font-size: clamp(32px, 5.6vw, 58px);
+  margin-top: 14px;
+  max-width: 640px;
+}
+
+.not-found__text {
+  margin-top: 20px;
+  color: var(--grey);
+}
+
+.not-found__actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 34px;
+  flex-wrap: wrap;
+}
