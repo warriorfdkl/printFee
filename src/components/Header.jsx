@@ -13,6 +13,7 @@ import './Header.css';
 const LINKS = [
   { to: '/catalog', label: 'Каталог' },
   { to: '/constructor', label: 'Конструктор' },
+  { to: '/calculator', label: 'Калькулятор' },
   { to: '/about', label: 'О нас' },
 ];
 

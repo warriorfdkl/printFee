@@ -18,6 +18,7 @@ export default function Footer() {
             <span className="footer__title">Навигация</span>
             <Link to="/catalog">Каталог</Link>
             <Link to="/constructor">Конструктор</Link>
+            <Link to="/calculator">Калькулятор</Link>
             <Link to="/about">О нас</Link>
           </div>
           <div className="footer__col">

@@ -4,6 +4,7 @@ import Loader from './components/Loader';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import Constructor from './pages/Constructor';
+import Calculator from './pages/Calculator';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import About from './pages/About';
@@ -21,6 +22,7 @@ function App() {
             <Route path="/catalog" element={<Catalog />} />
             <Route path="/constructor" element={<Constructor />} />
             <Route path="/constructor/:productId" element={<Constructor />} />
+            <Route path="/calculator" element={<Calculator />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/about" element={<About />} />
