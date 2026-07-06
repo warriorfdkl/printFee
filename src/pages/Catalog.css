@@ -100,7 +100,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .catalog__swatch {
     width: 44px;
     height: 44px;

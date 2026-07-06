@@ -32,10 +32,11 @@
 
 .checkout__fields input,
 .checkout__fields textarea {
+  width: 100%;
   border: 1.5px solid var(--grey-light);
   border-radius: 14px;
   padding: 14px 18px;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--black);
   font-weight: 400;
   transition: border-color 0.3s var(--ease);

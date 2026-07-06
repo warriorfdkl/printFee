@@ -85,10 +85,15 @@
 }
 
 .chat-widget__close {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 22px;
   line-height: 1;
   color: var(--white);
-  padding: 4px 8px;
+  flex-shrink: 0;
 }
 
 .chat-widget__body {
@@ -164,6 +169,9 @@
 }
 
 .chat-widget__quick button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
   padding: 8px 14px;
   border-radius: 999px;
   border: 1.5px solid var(--grey-light);

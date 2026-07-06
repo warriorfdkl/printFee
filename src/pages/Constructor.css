@@ -156,10 +156,11 @@
 }
 
 .constructor__input {
+  width: 100%;
   border: 1.5px solid var(--grey-light);
   border-radius: 14px;
   padding: 14px 18px;
-  font-size: 15px;
+  font-size: 16px;
   transition: border-color 0.3s var(--ease);
 }
 
@@ -323,9 +324,15 @@
   }
 }
 
-@media (max-width: 640px) {
-  .constructor__swatch {
+@media (max-width: 768px) {
+  .constructor__swatch,
+  .constructor__colorpick {
     width: 44px;
+    height: 44px;
+  }
+
+  .constructor__sizes button {
+    width: 52px;
     height: 44px;
   }
 }
