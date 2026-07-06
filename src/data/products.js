@@ -82,3 +82,14 @@ export const PRODUCTS = [
 
 export const colorHex = (id) => GARMENT_COLORS.find((c) => c.id === id)?.hex || '#fff';
 export const colorName = (id) => GARMENT_COLORS.find((c) => c.id === id)?.name || id;
+
+export const FONTS = [
+  { id: 'display', label: 'Крупный', family: 'var(--font-display)' },
+  { id: 'body', label: 'Простой', family: 'var(--font-body)' },
+  { id: 'serif', label: 'Элегантный', family: "'Playfair Display', serif" },
+  { id: 'script', label: 'Рукописный', family: "'Caveat', cursive" },
+  { id: 'condensed', label: 'Афиша', family: "'Oswald', sans-serif" },
+  { id: 'rounded', label: 'Круглый', family: "'Comfortaa', sans-serif" },
+];
+
+export const fontFamilyFor = (id) => FONTS.find((f) => f.id === id)?.family || 'inherit';

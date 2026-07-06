@@ -2,18 +2,14 @@ import { useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import Spinner from '../components/Spinner';
-import TShirt, { PRINT_ZONE } from '../components/TShirt';
-import { PRODUCTS, GARMENT_COLORS, SIZES, colorHex } from '../data/products';
+import TShirt, { VIEWS, PRINT_ZONES } from '../components/TShirt';
+import { PRODUCTS, GARMENT_COLORS, SIZES, colorHex, FONTS, fontFamilyFor } from '../data/products';
 import { useCartStore } from '../store/cart';
 import './Constructor.css';
 
-const FONTS = [
-  { id: 'display', label: 'Крупный' },
-  { id: 'body', label: 'Простой' },
-];
-
 const PRINT_SURCHARGE = { image: 400, text: 250 };
 const MAX_IMAGE_DIMENSION = 1200;
+const DRAG_BOUND = 90;
 
 function resizeImage(file) {
   return new Promise((resolve, reject) => {
@@ -32,6 +28,10 @@ function resizeImage(file) {
   });
 }
 
+let uid = 0;
+const nextLayerId = () => `l${Date.now()}-${uid++}`;
+const emptyLayers = () => ({ front: [], back: [], sleeve: [] });
+
 export default function Constructor() {
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -44,12 +44,9 @@ export default function Constructor() {
 
   const [color, setColor] = useState(baseProduct.colors[0]);
   const [size, setSize] = useState('M');
-  const [mode, setMode] = useState('image');
-  const [image, setImage] = useState(null);
-  const [text, setText] = useState('');
-  const [textColor, setTextColor] = useState('#ffffff');
-  const [font, setFont] = useState('display');
-  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [view, setView] = useState('front');
+  const [layersByView, setLayersByView] = useState(emptyLayers);
+  const [selectedId, setSelectedId] = useState(null);
   const [added, setAdded] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -57,8 +54,44 @@ export default function Constructor() {
 
   const dragState = useRef(null);
 
-  const hasPrint = (mode === 'image' && image) || (mode === 'text' && text.trim());
-  const price = baseProduct.price + (hasPrint ? PRINT_SURCHARGE[mode] : 0);
+  const layers = layersByView[view];
+  const selectedLayer = layers.find((l) => l.id === selectedId) || null;
+  const zone = PRINT_ZONES[view];
+  const viewLabel = VIEWS.find((v) => v.id === view).label;
+
+  const allLayers = Object.values(layersByView).flat();
+  const hasPrint = allLayers.length > 0;
+  const printSurcharge = allLayers.reduce((sum, l) => sum + PRINT_SURCHARGE[l.type], 0);
+  const price = baseProduct.price + printSurcharge;
+
+  const updateViewLayers = (updater) => {
+    setLayersByView((prev) => ({ ...prev, [view]: updater(prev[view]) }));
+  };
+
+  const patchLayer = (id, patch) => {
+    updateViewLayers((arr) => arr.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+  };
+
+  const removeLayer = (id) => {
+    updateViewLayers((arr) => arr.filter((l) => l.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  };
+
+  const addTextLayer = () => {
+    const layer = {
+      id: nextLayerId(),
+      type: 'text',
+      text: 'Текст',
+      color: '#ffffff',
+      font: 'display',
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+    };
+    updateViewLayers((arr) => [...arr, layer]);
+    setSelectedId(layer.id);
+  };
 
   const onUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -66,39 +99,51 @@ export default function Constructor() {
     setUploadError('');
     setUploading(true);
     try {
-      const result = await resizeImage(file);
-      setImage(result);
-      setTransform({ x: 0, y: 0, scale: 1 });
+      const content = await resizeImage(file);
+      const layer = { id: nextLayerId(), type: 'image', content, x: 0, y: 0, scale: 1, rotation: 0 };
+      updateViewLayers((arr) => [...arr, layer]);
+      setSelectedId(layer.id);
     } catch {
       setUploadError('Не получилось обработать файл — попробуй другое изображение');
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
-  const onPointerDown = (e) => {
-    if (!hasPrint) return;
-    dragState.current = { startX: e.clientX, startY: e.clientY, origin: { ...transform } };
+  const onLayerPointerDown = (e, id) => {
+    e.stopPropagation();
+    setSelectedId(id);
+    const layer = layers.find((l) => l.id === id);
+    dragState.current = { id, startX: e.clientX, startY: e.clientY, origin: { x: layer.x, y: layer.y } };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
 
-  const onPointerMove = (e) => {
+  const onZonePointerMove = (e) => {
     if (!dragState.current) return;
-    const dx = e.clientX - dragState.current.startX;
-    const dy = e.clientY - dragState.current.startY;
-    const bound = 60;
-    setTransform((t) => ({
-      ...t,
-      x: Math.max(-bound, Math.min(bound, dragState.current.origin.x + dx)),
-      y: Math.max(-bound, Math.min(bound, dragState.current.origin.y + dy)),
-    }));
+    const { id, startX, startY, origin } = dragState.current;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    patchLayer(id, {
+      x: Math.max(-DRAG_BOUND, Math.min(DRAG_BOUND, origin.x + dx)),
+      y: Math.max(-DRAG_BOUND, Math.min(DRAG_BOUND, origin.y + dy)),
+    });
   };
 
-  const onPointerUp = () => {
+  const onZonePointerUp = () => {
     dragState.current = null;
   };
 
+  const switchView = (v) => {
+    setView(v);
+    setSelectedId(null);
+  };
+
   const handleAddToCart = () => {
+    const views = {};
+    for (const v of Object.keys(layersByView)) {
+      if (layersByView[v].length) views[v] = layersByView[v];
+    }
     const saved = addItem({
       productId: baseProduct.id,
       name: baseProduct.name,
@@ -106,12 +151,7 @@ export default function Constructor() {
       size,
       price,
       qty: 1,
-      print:
-        !hasPrint
-          ? null
-          : mode === 'image'
-          ? { type: 'image', content: image, transform }
-          : { type: 'text', content: text, color: textColor, font, transform },
+      print: hasPrint ? { views } : null,
     });
     if (!saved) {
       setSaveError(true);
@@ -126,54 +166,64 @@ export default function Constructor() {
     <div className="page constructor">
       <div className="container constructor__inner">
         <div className="constructor__preview">
+          <div className="constructor__tabs constructor__view-tabs">
+            {VIEWS.map((v) => (
+              <button key={v.id} className={view === v.id ? 'is-active' : ''} onClick={() => switchView(v.id)}>
+                {v.label}
+                {layersByView[v.id].length > 0 && <span className="constructor__view-dot" />}
+              </button>
+            ))}
+          </div>
+
           <div className="constructor__stage">
-            <TShirt color={colorHex(color)} outline="#151515">
+            <TShirt color={colorHex(color)} outline="#151515" view={view}>
               <div
-                className={`print-zone ${hasPrint ? 'has-print' : ''}`}
+                className={`print-zone ${layers.length ? 'has-print' : ''}`}
                 style={{
-                  left: `${PRINT_ZONE.left}%`,
-                  top: `${PRINT_ZONE.top}%`,
-                  width: `${PRINT_ZONE.width}%`,
-                  height: `${PRINT_ZONE.height}%`,
+                  left: `${zone.left}%`,
+                  top: `${zone.top}%`,
+                  width: `${zone.width}%`,
+                  height: `${zone.height}%`,
                 }}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onPointerLeave={onPointerUp}
+                onPointerDown={() => setSelectedId(null)}
+                onPointerMove={onZonePointerMove}
+                onPointerUp={onZonePointerUp}
+                onPointerLeave={onZonePointerUp}
               >
                 {uploading && (
                   <span className="print-zone__loading">
                     <Spinner size={22} />
                   </span>
                 )}
-                {!uploading && !hasPrint && <span className="print-zone__hint">Область печати</span>}
-                {!uploading && mode === 'image' && image && (
-                  <img
-                    src={image}
-                    alt="Загруженный принт"
-                    draggable={false}
-                    className="print-zone__image"
-                    style={{
-                      transform: `translate(-50%, -50%) translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-                    }}
-                  />
+                {!uploading && layers.length === 0 && (
+                  <span className="print-zone__hint">Область печати · {viewLabel}</span>
                 )}
-                {mode === 'text' && text.trim() && (
+                {layers.map((l) => (
                   <div
-                    className="print-zone__text"
+                    key={l.id}
+                    className={`print-zone__layer ${selectedId === l.id ? 'is-selected' : ''}`}
                     style={{
-                      color: textColor,
-                      fontFamily: font === 'display' ? 'var(--font-display)' : 'var(--font-body)',
-                      transform: `translate(-50%, -50%) translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                      width: l.type === 'image' ? '130%' : '160%',
+                      transform: `translate(-50%, -50%) translate(${l.x}px, ${l.y}px) rotate(${l.rotation}deg) scale(${l.scale})`,
                     }}
+                    onPointerDown={(e) => onLayerPointerDown(e, l.id)}
                   >
-                    {text}
+                    {l.type === 'image' ? (
+                      <img src={l.content} alt="Загруженный принт" draggable={false} className="print-zone__image" />
+                    ) : (
+                      <span
+                        className="print-zone__text"
+                        style={{ color: l.color, fontFamily: fontFamilyFor(l.font) }}
+                      >
+                        {l.text}
+                      </span>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
             </TShirt>
           </div>
-          <p className="constructor__hint">Перетаскивай принт, чтобы разместить его на футболке</p>
+          <p className="constructor__hint">Перетаскивай элементы, чтобы разместить их на футболке</p>
         </div>
 
         <div className="constructor__panel">
@@ -184,92 +234,127 @@ export default function Constructor() {
           </Reveal>
 
           <div className="constructor__section">
-            <span className="constructor__label">Принт</span>
-            <div className="constructor__tabs">
-              <button className={mode === 'image' ? 'is-active' : ''} onClick={() => setMode('image')}>
-                Картинка
-              </button>
-              <button className={mode === 'text' ? 'is-active' : ''} onClick={() => setMode('text')}>
-                Текст
-              </button>
-              <button className={mode === 'none' ? 'is-active' : ''} onClick={() => setMode('none')}>
-                Без принта
+            <span className="constructor__label">Добавить на «{viewLabel.toLowerCase()}»</span>
+            <div className="constructor__add-row">
+              <label className={`constructor__upload-btn ${uploading ? 'is-disabled' : ''}`}>
+                {uploading ? (
+                  <>
+                    <Spinner size={15} /> Загружаем…
+                  </>
+                ) : (
+                  '+ Картинка'
+                )}
+                <input type="file" accept="image/*" onChange={onUpload} disabled={uploading} hidden />
+              </label>
+              <button type="button" className="constructor__upload-btn" onClick={addTextLayer}>
+                + Текст
               </button>
             </div>
+            {uploadError && <p className="constructor__error">{uploadError}</p>}
+          </div>
 
-            {mode === 'image' && (
-              <div className="constructor__upload">
-                <label className={`constructor__upload-btn ${uploading ? 'is-disabled' : ''}`}>
-                  {uploading ? (
-                    <>
-                      <Spinner size={15} /> Загружаем…
-                    </>
-                  ) : image ? (
-                    'Заменить изображение'
-                  ) : (
-                    'Загрузить изображение'
-                  )}
-                  <input type="file" accept="image/*" onChange={onUpload} disabled={uploading} hidden />
-                </label>
-                {uploadError && <p className="constructor__error">{uploadError}</p>}
-                {image && (
-                  <div className="constructor__slider">
-                    <span>Размер принта</span>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="1.8"
-                      step="0.02"
-                      value={transform.scale}
-                      onChange={(e) => setTransform((t) => ({ ...t, scale: Number(e.target.value) }))}
-                    />
+          {layers.length > 0 && (
+            <div className="constructor__section">
+              <span className="constructor__label">Слои на «{viewLabel.toLowerCase()}»</span>
+              <div className="constructor__layers">
+                {layers.map((l, i) => (
+                  <div
+                    key={l.id}
+                    className={`constructor__layer-row ${selectedId === l.id ? 'is-active' : ''}`}
+                    onClick={() => setSelectedId(l.id)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setSelectedId(l.id);
+                    }}
+                  >
+                    <span>{l.type === 'image' ? `Картинка ${i + 1}` : l.text || 'Текст'}</span>
+                    <span
+                      className="constructor__layer-remove"
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Удалить слой"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeLayer(l.id);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.stopPropagation();
+                          removeLayer(l.id);
+                        }
+                      }}
+                    >
+                      ×
+                    </span>
                   </div>
-                )}
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {mode === 'text' && (
-              <div className="constructor__textmode">
-                <input
-                  type="text"
-                  maxLength={24}
-                  placeholder="Напиши текст для принта"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  className="constructor__input"
-                />
-                <div className="constructor__row">
-                  <div className="constructor__fonts">
-                    {FONTS.map((f) => (
-                      <button key={f.id} className={font === f.id ? 'is-active' : ''} onClick={() => setFont(f.id)}>
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
+          {selectedLayer && (
+            <div className="constructor__section">
+              <span className="constructor__label">Настройки слоя</span>
+              <div className="constructor__upload">
+                {selectedLayer.type === 'text' && (
+                  <>
+                    <input
+                      type="text"
+                      maxLength={24}
+                      placeholder="Текст"
+                      value={selectedLayer.text}
+                      onChange={(e) => patchLayer(selectedLayer.id, { text: e.target.value })}
+                      className="constructor__input"
+                    />
+                    <div className="constructor__row">
+                      <div className="constructor__fonts">
+                        {FONTS.map((f) => (
+                          <button
+                            key={f.id}
+                            className={selectedLayer.font === f.id ? 'is-active' : ''}
+                            onClick={() => patchLayer(selectedLayer.id, { font: f.id })}
+                          >
+                            {f.label}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="color"
+                        value={selectedLayer.color}
+                        onChange={(e) => patchLayer(selectedLayer.id, { color: e.target.value })}
+                        className="constructor__colorpick"
+                        aria-label="Цвет текста"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="constructor__slider">
+                  <span>Размер</span>
                   <input
-                    type="color"
-                    value={textColor}
-                    onChange={(e) => setTextColor(e.target.value)}
-                    className="constructor__colorpick"
-                    aria-label="Цвет текста"
+                    type="range"
+                    min="0.4"
+                    max="1.8"
+                    step="0.02"
+                    value={selectedLayer.scale}
+                    onChange={(e) => patchLayer(selectedLayer.id, { scale: Number(e.target.value) })}
                   />
                 </div>
-                {text.trim() && (
-                  <div className="constructor__slider">
-                    <span>Размер текста</span>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="1.8"
-                      step="0.02"
-                      value={transform.scale}
-                      onChange={(e) => setTransform((t) => ({ ...t, scale: Number(e.target.value) }))}
-                    />
-                  </div>
-                )}
+                <div className="constructor__slider">
+                  <span>Поворот</span>
+                  <input
+                    type="range"
+                    min="-45"
+                    max="45"
+                    step="1"
+                    value={selectedLayer.rotation}
+                    onChange={(e) => patchLayer(selectedLayer.id, { rotation: Number(e.target.value) })}
+                  />
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="constructor__section">
             <span className="constructor__label">Модель</span>

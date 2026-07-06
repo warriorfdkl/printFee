@@ -83,12 +83,17 @@
   cursor: default;
 }
 
-.print-zone__image {
+.print-zone__layer {
   position: absolute;
   left: 50%;
   top: 50%;
+  touch-action: none;
+}
+
+.print-zone__image {
+  display: block;
+  width: 100%;
   max-width: none;
-  width: 130%;
   pointer-events: none;
   user-select: none;
 }
@@ -113,14 +118,12 @@
 }
 
 .print-zone__text {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+  display: block;
+  width: 100%;
   font-weight: 800;
   text-align: center;
   white-space: pre-wrap;
   font-size: 15px;
-  width: 160%;
   pointer-events: none;
   user-select: none;
 }

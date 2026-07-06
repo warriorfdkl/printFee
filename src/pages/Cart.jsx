@@ -1,44 +1,44 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Reveal from '../components/Reveal';
-import TShirt, { PRINT_ZONE } from '../components/TShirt';
+import TShirt, { PRINT_ZONES } from '../components/TShirt';
 import { useCartStore, cartTotal } from '../store/cart';
-import { colorHex, colorName } from '../data/products';
+import { colorHex, colorName, fontFamilyFor } from '../data/products';
 import './Cart.css';
 
 function ItemPreview({ item }) {
+  const zone = PRINT_ZONES.front;
+  const frontLayers = item.print?.views?.front || [];
+
   return (
     <TShirt color={colorHex(item.color)} outline="#151515">
-      {item.print && (
+      {frontLayers.length > 0 && (
         <div
           className="print-zone"
           style={{
-            left: `${PRINT_ZONE.left}%`,
-            top: `${PRINT_ZONE.top}%`,
-            width: `${PRINT_ZONE.width}%`,
-            height: `${PRINT_ZONE.height}%`,
+            left: `${zone.left}%`,
+            top: `${zone.top}%`,
+            width: `${zone.width}%`,
+            height: `${zone.height}%`,
           }}
         >
-          {item.print.type === 'image' ? (
-            <img
-              src={item.print.content}
-              alt=""
-              className="print-zone__image"
-              style={{
-                transform: `translate(-50%, -50%) translate(${item.print.transform.x}px, ${item.print.transform.y}px) scale(${item.print.transform.scale})`,
-              }}
-            />
-          ) : (
+          {frontLayers.map((l) => (
             <div
-              className="print-zone__text"
+              key={l.id}
+              className="print-zone__layer"
               style={{
-                color: item.print.color,
-                fontFamily: item.print.font === 'display' ? 'var(--font-display)' : 'var(--font-body)',
-                transform: `translate(-50%, -50%) translate(${item.print.transform.x}px, ${item.print.transform.y}px) scale(${item.print.transform.scale})`,
+                width: l.type === 'image' ? '130%' : '160%',
+                transform: `translate(-50%, -50%) translate(${l.x}px, ${l.y}px) rotate(${l.rotation}deg) scale(${l.scale})`,
               }}
             >
-              {item.print.content}
+              {l.type === 'image' ? (
+                <img src={l.content} alt="" className="print-zone__image" />
+              ) : (
+                <span className="print-zone__text" style={{ color: l.color, fontFamily: fontFamilyFor(l.font) }}>
+                  {l.text}
+                </span>
+              )}
             </div>
-          )}
+          ))}
         </div>
       )}
     </TShirt>
@@ -94,6 +94,8 @@ export default function Cart() {
                   </div>
                   <p className="cart__item-meta">
                     {colorName(item.color)} · Размер {item.size} · {item.print ? 'С принтом' : 'Без принта'}
+                    {item.print?.views?.back?.length ? ' + спина' : ''}
+                    {item.print?.views?.sleeve?.length ? ' + рукав' : ''}
                   </p>
                   <div className="cart__item-footer">
                     <div className="cart__qty">
