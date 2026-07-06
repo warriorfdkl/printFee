@@ -9,7 +9,6 @@ export default function Marquee({ text, speed = 28, dark = false }) {
             {Array.from({ length: 6 }).map((_, j) => (
               <span key={j} className="marquee__item">
                 {text}
-                <i className="marquee__dot" />
               </span>
             ))}
           </div>

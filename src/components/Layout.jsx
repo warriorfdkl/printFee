@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
+import ChatWidget from './ChatWidget';
 
 export default function Layout() {
   const location = useLocation();
@@ -27,6 +28,7 @@ export default function Layout() {
         </motion.main>
       </AnimatePresence>
       <Footer />
+      <ChatWidget />
     </>
   );
 }

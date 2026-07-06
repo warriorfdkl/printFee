@@ -1,0 +1,14 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader__mark {
+  width: clamp(56px, 10vw, 96px);
+  height: auto;
+}

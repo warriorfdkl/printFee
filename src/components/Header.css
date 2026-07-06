@@ -71,10 +71,22 @@
 }
 
 .header__account {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font-weight: 600;
   font-size: 14.5px;
   position: relative;
   padding: 4px 0;
+}
+
+.header__account-icon {
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease);
+}
+
+.header__account:hover .header__account-icon {
+  transform: scale(1.1);
 }
 
 .header__account::after {
@@ -122,13 +134,16 @@
 .header__burger {
   display: none;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  width: 26px;
+  width: 44px;
+  height: 44px;
 }
 
 .header__burger span {
   height: 2px;
-  width: 100%;
+  width: 26px;
   background: var(--black);
   transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
 }
@@ -162,6 +177,18 @@
   font-weight: 700;
   padding: 14px 0;
   border-bottom: 1px solid var(--grey-light);
+}
+
+.header__mobile-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header__mobile-account svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 860px) {

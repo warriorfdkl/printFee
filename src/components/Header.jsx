@@ -11,8 +11,16 @@ const LINKS = [
   { to: '/catalog', label: 'Каталог' },
   { to: '/constructor', label: 'Конструктор' },
   { to: '/about', label: 'О нас' },
-  { to: '/contacts', label: 'Контакты' },
 ];
+
+function UserIcon({ className }) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M4 20c0-4 3.58-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -53,7 +61,8 @@ export default function Header() {
 
         <div className="header__actions">
           <Link to="/account" className="header__account">
-            {user ? user.name.split(' ')[0] : 'Кабинет'}
+            <UserIcon className="header__account-icon" />
+            <span>{user ? user.name.split(' ')[0] : 'Кабинет'}</span>
           </Link>
           <Link to="/cart" className="header__cart">
             <span>Корзина</span>
@@ -94,7 +103,8 @@ export default function Header() {
                 </NavLink>
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + (LINKS.length + 1) * 0.06 }}>
-                <NavLink to="/account" onClick={() => setOpen(false)}>
+                <NavLink to="/account" className="header__mobile-account" onClick={() => setOpen(false)}>
+                  <UserIcon />
                   {user ? user.name.split(' ')[0] : 'Кабинет'}
                 </NavLink>
               </motion.div>

@@ -34,15 +34,6 @@
   white-space: nowrap;
 }
 
-.marquee__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent-grad);
-  margin-left: 22px;
-  flex-shrink: 0;
-}
-
 @keyframes marquee-scroll {
   from {
     transform: translateX(0);

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '../components/Reveal';
+import Spinner from '../components/Spinner';
 import { useAuthStore } from '../store/auth';
 import { useCartStore } from '../store/cart';
 import './Account.css';
@@ -8,14 +9,18 @@ import './Account.css';
 function LoginForm() {
   const login = useAuthStore((s) => s.login);
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
+  const [loading, setLoading] = useState(false);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const valid = form.name.trim().length > 1 && (form.email.trim() || form.phone.trim());
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!valid) return;
-    login({ ...form, joined: new Date().toISOString() });
+    if (!valid || loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      login({ ...form, joined: new Date().toISOString() });
+    }, 700);
   };
 
   return (
@@ -44,8 +49,14 @@ function LoginForm() {
               Телефон
               <input type="tel" value={form.phone} onChange={update('phone')} placeholder="+7 999 000-00-00" />
             </label>
-            <button type="submit" className="btn btn-primary btn-lg" disabled={!valid}>
-              Войти
+            <button type="submit" className="btn btn-primary btn-lg" disabled={!valid || loading}>
+              {loading ? (
+                <>
+                  <Spinner size={16} /> Входим…
+                </>
+              ) : (
+                'Войти'
+              )}
             </button>
           </form>
         </Reveal>

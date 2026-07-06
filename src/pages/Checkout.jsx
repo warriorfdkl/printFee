@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Reveal from '../components/Reveal';
+import Spinner from '../components/Spinner';
 import { useCartStore, cartTotal } from '../store/cart';
 import { useAuthStore } from '../store/auth';
 import './Checkout.css';
@@ -27,19 +28,27 @@ export default function Checkout() {
   });
   const [delivery, setDelivery] = useState('courier');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const total = cartTotal(items);
   const deliveryPrice = DELIVERY_OPTIONS.find((d) => d.id === delivery)?.price || 0;
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const valid = form.name.trim().length > 1 && form.phone.trim().length > 5;
+  const valid =
+    form.name.trim().length > 1 &&
+    form.phone.trim().length > 5 &&
+    (delivery === 'pickup' || form.address.trim().length > 4);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!valid) return;
-    placeOrder({ ...form, delivery });
-    setSubmitted(true);
+    if (!valid || submitting) return;
+    setSubmitting(true);
+    setTimeout(() => {
+      placeOrder({ ...form, delivery });
+      setSubmitting(false);
+      setSubmitted(true);
+    }, 900);
   };
 
   if (submitted && lastOrder) {
@@ -57,7 +66,7 @@ export default function Checkout() {
               Заказ <span className="accent-text">№{lastOrder.number}</span> принят
             </h1>
             <p>
-              Спасибо, {lastOrder.customer.name}! Мы свяжемся с вами по телефону {lastOrder.customer.phone} в течение
+              Спасибо, {lastOrder.customer.name}! Мы свяжемся с тобой по телефону {lastOrder.customer.phone} в течение
               рабочего дня, чтобы подтвердить детали и способ оплаты.
             </p>
             <div className="checkout__done-total">
@@ -121,7 +130,7 @@ export default function Checkout() {
             {delivery !== 'pickup' && (
               <label>
                 Адрес
-                <input type="text" value={form.address} onChange={update('address')} placeholder="Город, улица, дом, квартира" />
+                <input type="text" required value={form.address} onChange={update('address')} placeholder="Город, улица, дом, квартира" />
               </label>
             )}
 
@@ -131,12 +140,18 @@ export default function Checkout() {
             </label>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-lg checkout__submit" disabled={!valid}>
-            Подтвердить заказ
+          <button type="submit" className="btn btn-primary btn-lg checkout__submit" disabled={!valid || submitting}>
+            {submitting ? (
+              <>
+                <Spinner size={16} /> Оформляем заказ…
+              </>
+            ) : (
+              'Подтвердить заказ'
+            )}
           </button>
           <p className="checkout__legal">
-            Нажимая «Подтвердить заказ», вы соглашаетесь на обработку персональных данных. Оплата на сайте не производится —
-            с вами свяжется менеджер.
+            Нажимая «Подтвердить заказ», ты соглашаешься на обработку персональных данных. Оплата на сайте не производится —
+            с тобой свяжется менеджер.
           </p>
         </form>
 

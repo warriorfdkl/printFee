@@ -19,7 +19,6 @@ export default function Footer() {
             <Link to="/catalog">Каталог</Link>
             <Link to="/constructor">Конструктор</Link>
             <Link to="/about">О нас</Link>
-            <Link to="/contacts">Контакты</Link>
           </div>
           <div className="footer__col">
             <span className="footer__title">Контакты</span>
@@ -29,9 +28,9 @@ export default function Footer() {
           </div>
           <div className="footer__col">
             <span className="footer__title">Соцсети</span>
-            <a href="#" onClick={(e) => e.preventDefault()}>Telegram</a>
-            <a href="#" onClick={(e) => e.preventDefault()}>Instagram</a>
-            <a href="#" onClick={(e) => e.preventDefault()}>VK</a>
+            <span className="footer__soon" title="Скоро откроем">Telegram</span>
+            <span className="footer__soon" title="Скоро откроем">Instagram</span>
+            <span className="footer__soon" title="Скоро откроем">VK</span>
           </div>
         </div>
 

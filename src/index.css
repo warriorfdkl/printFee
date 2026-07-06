@@ -1,9 +1,9 @@
 :root {
   --black: #0a0a0a;
-  --white: #fbfbfa;
-  --paper: #f2f1ee;
-  --grey: #6f6f6a;
-  --grey-light: #d8d7d2;
+  --white: #ffffff;
+  --paper: #f4f4f4;
+  --grey: #6b6b6b;
+  --grey-light: #e2e2e2;
   --accent-1: #5d1af4;
   --accent-2: #766be9;
   --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));

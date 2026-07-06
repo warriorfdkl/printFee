@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Reveal from '../components/Reveal';
+import Spinner from '../components/Spinner';
 import TShirt, { PRINT_ZONE } from '../components/TShirt';
 import { PRODUCTS, GARMENT_COLORS, SIZES, colorHex } from '../data/products';
 import { useCartStore } from '../store/cart';
@@ -12,6 +13,24 @@ const FONTS = [
 ];
 
 const PRINT_SURCHARGE = { image: 400, text: 250 };
+const MAX_IMAGE_DIMENSION = 1200;
+
+function resizeImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(img.src);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 export default function Constructor() {
   const { productId } = useParams();
@@ -32,21 +51,29 @@ export default function Constructor() {
   const [font, setFont] = useState('display');
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [added, setAdded] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [saveError, setSaveError] = useState(false);
 
   const dragState = useRef(null);
 
   const hasPrint = (mode === 'image' && image) || (mode === 'text' && text.trim());
   const price = baseProduct.price + (hasPrint ? PRINT_SURCHARGE[mode] : 0);
 
-  const onUpload = (e) => {
+  const onUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImage(reader.result);
+    setUploadError('');
+    setUploading(true);
+    try {
+      const result = await resizeImage(file);
+      setImage(result);
       setTransform({ x: 0, y: 0, scale: 1 });
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setUploadError('Не получилось обработать файл — попробуй другое изображение');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const onPointerDown = (e) => {
@@ -72,7 +99,7 @@ export default function Constructor() {
   };
 
   const handleAddToCart = () => {
-    addItem({
+    const saved = addItem({
       productId: baseProduct.id,
       name: baseProduct.name,
       color,
@@ -86,6 +113,11 @@ export default function Constructor() {
           ? { type: 'image', content: image, transform }
           : { type: 'text', content: text, color: textColor, font, transform },
     });
+    if (!saved) {
+      setSaveError(true);
+      return;
+    }
+    setSaveError(false);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };
@@ -109,8 +141,13 @@ export default function Constructor() {
                 onPointerUp={onPointerUp}
                 onPointerLeave={onPointerUp}
               >
-                {!hasPrint && <span className="print-zone__hint">Область печати</span>}
-                {mode === 'image' && image && (
+                {uploading && (
+                  <span className="print-zone__loading">
+                    <Spinner size={22} />
+                  </span>
+                )}
+                {!uploading && !hasPrint && <span className="print-zone__hint">Область печати</span>}
+                {!uploading && mode === 'image' && image && (
                   <img
                     src={image}
                     alt="Загруженный принт"
@@ -136,7 +173,7 @@ export default function Constructor() {
               </div>
             </TShirt>
           </div>
-          <p className="constructor__hint">Перетаскивай принт мышью прямо на футболке</p>
+          <p className="constructor__hint">Перетаскивай принт, чтобы разместить его на футболке</p>
         </div>
 
         <div className="constructor__panel">
@@ -162,10 +199,19 @@ export default function Constructor() {
 
             {mode === 'image' && (
               <div className="constructor__upload">
-                <label className="constructor__upload-btn">
-                  {image ? 'Заменить изображение' : 'Загрузить изображение'}
-                  <input type="file" accept="image/*" onChange={onUpload} hidden />
+                <label className={`constructor__upload-btn ${uploading ? 'is-disabled' : ''}`}>
+                  {uploading ? (
+                    <>
+                      <Spinner size={15} /> Загружаем…
+                    </>
+                  ) : image ? (
+                    'Заменить изображение'
+                  ) : (
+                    'Загрузить изображение'
+                  )}
+                  <input type="file" accept="image/*" onChange={onUpload} disabled={uploading} hidden />
                 </label>
+                {uploadError && <p className="constructor__error">{uploadError}</p>}
                 {image && (
                   <div className="constructor__slider">
                     <span>Размер принта</span>
@@ -279,6 +325,11 @@ export default function Constructor() {
             <button className="constructor__gocart" onClick={() => navigate('/cart')}>
               Перейти в корзину →
             </button>
+          )}
+          {saveError && (
+            <p className="constructor__error">
+              Не удалось сохранить корзину — в браузере закончилось место для хранения. Освободите его или уменьшите число товаров с принтом.
+            </p>
           )}
         </div>
       </div>

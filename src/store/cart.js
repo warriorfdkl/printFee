@@ -12,8 +12,9 @@ const load = () => {
 const persist = (items) => {
   try {
     localStorage.setItem('pp_cart', JSON.stringify(items));
+    return true;
   } catch {
-    /* ignore quota / privacy-mode errors */
+    return false;
   }
 };
 
@@ -39,12 +40,15 @@ export const useCartStore = create((set, get) => ({
   orders: loadOrders(),
   lastOrder: null,
 
-  addItem: (item) =>
+  addItem: (item) => {
+    let saved = true;
     set((state) => {
       const items = [...state.items, { ...item, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, qty: item.qty || 1 }];
-      persist(items);
+      saved = persist(items);
       return { items };
-    }),
+    });
+    return saved;
+  },
 
   removeItem: (id) =>
     set((state) => {

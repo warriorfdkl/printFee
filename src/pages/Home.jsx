@@ -14,7 +14,7 @@ const STEPS = [
   { n: '01', title: 'Загрузи макет', text: 'Своя картинка, лого или текст — в конструкторе на сайте' },
   { n: '02', title: 'Выбери футболку', text: 'Крой, цвет, размер, плотность ткани — под себя' },
   { n: '03', title: 'Оформи заказ', text: 'Оставь контакты — мы свяжемся и подтвердим детали' },
-  { n: '04', title: 'Получи и носи', text: 'Печатаем и передаём в производство за 2–4 дня' },
+  { n: '04', title: 'Получи и носи', text: 'Забираешь заказ сам или получаешь курьером — носи с удовольствием' },
 ];
 
 const FEATURES = [
@@ -22,6 +22,24 @@ const FEATURES = [
   { title: 'DTF-печать', text: 'Яркий цвет, не трескается и не выгорает' },
   { title: 'Свой конструктор', text: 'Видишь результат до того, как оплатишь' },
   { title: 'Малые тиражи', text: 'От одной футболки — без минимальной партии' },
+];
+
+const TESTIMONIALS = [
+  {
+    name: 'Игорь Волков',
+    role: 'Заказал мерч для команды, 18 шт.',
+    text: 'Собрал принт с логотипом в конструкторе за десять минут, сразу видел, как будет выглядеть. Привезли раньше срока, печать не облезла после десятка стирок.',
+  },
+  {
+    name: 'Настя Р.',
+    role: 'Подарок на день рождения',
+    text: 'Нужна была всего одна футболка с фото — нигде не брали такой маленький заказ, а тут напечатали без вопросов и быстро.',
+  },
+  {
+    name: 'Марат С.',
+    role: 'Локальный бренд одежды',
+    text: 'Печатаем у них уже третий дроп подряд. Цвет в конструкторе совпадает с тем, что получаем в итоге — для нас это было главным критерием.',
+  },
 ];
 
 export default function Home() {
@@ -131,7 +149,7 @@ export default function Home() {
               <Reveal key={p.id} delay={i * 0.06}>
                 <Link to={`/constructor/${p.id}`} className="product-card">
                   <div className="product-card__visual">
-                    <TShirt color="#f2f1ee" outline="#151515" />
+                    <TShirt color="#f4f4f4" outline="#151515" />
                     {p.tag && <span className="product-card__tag">{p.tag}</span>}
                   </div>
                   <div className="product-card__info">
@@ -146,11 +164,41 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section testimonials">
+        <div className="container">
+          <Reveal>
+            <span className="eyebrow">Отзывы</span>
+            <h2 className="section__title">Что говорят те, кто уже заказывал</h2>
+          </Reveal>
+
+          <div className="testimonials__grid">
+            {TESTIMONIALS.map((t, i) => (
+              <Reveal key={t.name} delay={i * 0.08}>
+                <div className="testimonial-card">
+                  <div className="testimonial-card__stars">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <svg key={j} width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8L5.8 21l1.6-7-5.4-4.7 7.1-.6L12 2z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="testimonial-card__text">«{t.text}»</p>
+                  <div className="testimonial-card__meta">
+                    <strong>{t.name}</strong>
+                    <span>{t.role}</span>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="section statement">
         <div className="container statement__inner">
           <Reveal>
             <h2 className="statement__title">
-              Не нашёл что искал в каталоге?
+              Не нашёл, что искал в каталоге?
               <br />
               <span className="accent-text">Придумай сам.</span>
             </h2>
