@@ -1,0 +1,24 @@
+.theme-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--grey-light);
+  color: var(--black);
+  transition: border-color 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.theme-toggle:hover {
+  border-color: var(--black);
+  transform: scale(1.06);
+}
+
+.theme-toggle__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

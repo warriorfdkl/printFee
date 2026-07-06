@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../assets/logo/logo-black.svg';
+import logoBlack from '../assets/logo/logo-black.svg';
+import logoWhite from '../assets/logo/logo-white.svg';
 import { useCartStore } from '../store/cart';
 import { cartCount } from '../store/cart';
 import { useAuthStore } from '../store/auth';
+import { useThemeStore } from '../store/theme';
+import ThemeToggle from './ThemeToggle';
 import './Header.css';
 
 const LINKS = [
@@ -28,6 +31,7 @@ export default function Header() {
   const items = useCartStore((s) => s.items);
   const count = cartCount(items);
   const user = useAuthStore((s) => s.user);
+  const theme = useThemeStore((s) => s.theme);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -44,7 +48,7 @@ export default function Header() {
     <header className={`header ${scrolled ? 'header--scrolled' : ''}`}>
       <div className="container header__inner">
         <Link to="/" className="header__logo" onClick={() => setOpen(false)}>
-          <img src={logo} alt="PrintFee" />
+          <img src={theme === 'dark' ? logoWhite : logoBlack} alt="PrintFee" />
         </Link>
 
         <nav className="header__nav">
@@ -60,6 +64,7 @@ export default function Header() {
         </nav>
 
         <div className="header__actions">
+          <ThemeToggle className="header__theme-toggle" />
           <Link to="/account" className="header__account">
             <UserIcon className="header__account-icon" />
             <span>{user ? user.name.split(' ')[0] : 'Кабинет'}</span>

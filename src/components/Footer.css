@@ -1,9 +1,9 @@
 .footer {
-  background: var(--paper);
-  color: var(--black);
+  /* Always black, independent of the light/dark site theme — a fixed brand bookend. */
+  background: #0a0a0a;
+  color: #ffffff;
   padding: 90px 0 30px;
   margin-top: 140px;
-  border-top: 1px solid var(--grey-light);
 }
 
 .footer__top {
@@ -13,7 +13,7 @@
   flex-wrap: wrap;
   gap: 24px;
   padding-bottom: 60px;
-  border-bottom: 1px solid var(--grey-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .footer__logo {
@@ -45,13 +45,13 @@
   font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--grey);
+  color: rgba(255, 255, 255, 0.62);
   margin-bottom: 6px;
 }
 
 .footer__col a,
 .footer__col span {
-  color: var(--black);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 15px;
   width: fit-content;
   transition: color 0.3s var(--ease);
@@ -72,9 +72,9 @@
   flex-wrap: wrap;
   gap: 10px;
   padding-top: 24px;
-  border-top: 1px solid var(--grey-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 13px;
-  color: var(--grey);
+  color: rgba(255, 255, 255, 0.62);
 }
 
 @media (max-width: 640px) {

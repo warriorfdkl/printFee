@@ -8,6 +8,14 @@
   --accent-2: #766be9;
   --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));
 
+  --ink-hover: #2a2a2a;
+  --danger: #b8291a;
+  --surface-translucent: rgba(251, 251, 250, 0.82);
+  --print-hint: rgba(10, 10, 10, 0.35);
+  --print-hint-strong: rgba(10, 10, 10, 0.6);
+  --print-hint-border: rgba(10, 10, 10, 0.25);
+  --muted-on-ink: rgba(255, 255, 255, 0.55);
+
   --font-display: 'Unbounded', 'Manrope', sans-serif;
   --font-body: 'Manrope', sans-serif;
 
@@ -15,6 +23,38 @@
   --ease-soft: cubic-bezier(0.65, 0, 0.35, 1);
 
   color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --black: #f2f1ef;
+  --white: #0b0b0d;
+  --paper: #18171c;
+  --grey: #a3a0ab;
+  --grey-light: #2c2a31;
+  --accent-1: #8a67ff;
+  --accent-2: #9a90f5;
+
+  --ink-hover: #e4e2e6;
+  --danger: #ff6f5c;
+  --surface-translucent: rgba(14, 13, 16, 0.75);
+  --print-hint: rgba(255, 255, 255, 0.35);
+  --print-hint-strong: rgba(255, 255, 255, 0.6);
+  --print-hint-border: rgba(255, 255, 255, 0.25);
+  --muted-on-ink: rgba(10, 10, 10, 0.55);
+
+  color-scheme: dark;
+}
+
+/* Only the circular clip-path wipe should drive the theme transition —
+   suppress the browser's default cross-fade so it doesn't fight it. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
 }
 
 * {
