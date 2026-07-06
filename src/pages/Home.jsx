@@ -6,6 +6,7 @@ import Marquee from '../components/Marquee';
 import TShirt from '../components/TShirt';
 import logoMark from '../assets/logo/mark.svg';
 import { PRODUCTS } from '../data/products';
+import { useThemeStore } from '../store/theme';
 import './Home.css';
 
 const HEADLINE = ['Печать,', 'которую', 'придумал', 'ты сам'];
@@ -43,6 +44,7 @@ const TESTIMONIALS = [
 ];
 
 export default function Home() {
+  const theme = useThemeStore((s) => s.theme);
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const shirtY = useTransform(scrollYProgress, [0, 1], [0, 120]);
@@ -96,7 +98,7 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            <TShirt color="#151515" outline="#151515">
+            <TShirt color={theme === 'dark' ? '#f4f4f4' : '#151515'} outline="#151515">
               <img src={logoMark} alt="" className="hero__visual-print" />
             </TShirt>
             <div className="hero__badge">
